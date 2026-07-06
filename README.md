@@ -161,3 +161,7 @@ suite instead of the whole thing. The critic exists to be the reader the
 generator skipped: it re-runs the full suite itself, re-derives every claim in
 the generator's manifest from the files on disk, and greps for reinvented
 primitives. It grades the files, never the narration.
+
+## License
+
+MIT -- Copyright (c) 2026 Calibrate Your Business. See [LICENSE](LICENSE).
