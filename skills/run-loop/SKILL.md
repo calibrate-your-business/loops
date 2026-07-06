@@ -82,6 +82,27 @@ real value -- conformance and reinvention judgment on actual code -- needs the
 strong tier. `test_model` is for testing mechanics, NOT for trusting the critic's
 VERDICTS on real code.
 
+## HEARTBEAT (the coordinator's liveness duty -- owner-mandated 2026-07-05)
+
+Whenever ANY delegated work is in flight (a generator, a critic, a suite gate),
+the coordinator checks in on a ~5-minute cadence and gives the human a BRIEF
+one-sentence status. Each heartbeat VERIFIES before it reports -- one cheap
+process-table + log-mtime check (`ps -C run-tests` / newest log mtime / ok-count),
+never a repeat of the delegate's last claim:
+
+- **Verified progressing** -> one sentence: what is running, how far, ETA shape.
+- **Stale** (no process, or log mtime older than ~5 min while a run is claimed)
+  -> do NOT report "holding": that is the parked-agent trap ("running" !=
+  "progressing"). Act immediately: stop the parked delegate, take the step over
+  (launch the gate yourself, commit yourself), THEN report what you did.
+
+Mechanism when the coordinator is itself event-driven (an agent that sleeps
+between notifications): arm a WATCHDOG background task that exits every ~300s
+with the status line -- its completion wakes the coordinator, which verifies,
+reports one sentence, and re-arms until the in-flight work lands. A silent gap
+longer than ~10 minutes between reports is a coordinator failure, not a delegate
+failure.
+
 ## Trace (LOOPS.md VII)
 
 Pipe each generator/critic invocation's output to a per-run log; `progress.md` is
