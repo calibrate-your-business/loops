@@ -86,7 +86,10 @@ VERDICTS on real code.
 
 Whenever ANY delegated work is in flight (a generator, a critic, a suite gate),
 the coordinator checks in on a ~5-minute cadence and gives the human a BRIEF
-one-sentence status. Each heartbeat VERIFIES before it reports -- one cheap
+one-sentence status. **Every heartbeat the human sees starts with a timestamp**
+(`HH:MM:SS` local) -- both the raw watchdog line and the coordinator's relayed
+sentence -- so the human can see cadence and staleness at a glance without
+trusting the narration. Each heartbeat VERIFIES before it reports -- one cheap
 process-table + log-mtime check (`ps -C run-tests` / newest log mtime / ok-count),
 never a repeat of the delegate's last claim:
 
