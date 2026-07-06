@@ -1,0 +1,14 @@
+{
+  "target": "<branch>",
+  "verify": "<verify command from the profile>",
+  "rubric_context": "<brain context>",
+  "items": [
+    {
+      "id": "<id>",
+      "title": "<title>",
+      "status": "todo",
+      "assertions": ["C1", "K1", "P1"],
+      "iters": 0
+    }
+  ]
+}

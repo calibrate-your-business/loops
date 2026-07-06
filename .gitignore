@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# Per-project profiles are private bindings (corporate specifics); the engine
+# is public. Keep profiles local, or publish your own in your fork.
+profiles/
