@@ -106,6 +106,16 @@ reports one sentence, and re-arms until the in-flight work lands. A silent gap
 longer than ~10 minutes between reports is a coordinator failure, not a delegate
 failure.
 
+**SINGLE-CHAIN rule (cadence hygiene).** Exactly ONE pending watchdog exists at
+any time. Every beat the coordinator emits -- whether the scheduled watchdog
+fired or an unrelated event prompted an ad-hoc status -- RETIRES the pending
+watchdog (TaskStop) and arms the next one at +5 min from THAT beat. Never arm a
+new watchdog without retiring the old: overlapping chains bunch beats seconds
+apart and then leave gaps, which reads as noise and hides real staleness. (The
+completion-waiter on the in-flight work is separate and exempt -- it is the end
+signal, not a heartbeat.) Note: notification delivery can still bunch behind a
+long coordinator turn; the chain keeps the EMISSION cadence honest.
+
 ## Trace (LOOPS.md VII)
 
 Pipe each generator/critic invocation's output to a per-run log; `progress.md` is
