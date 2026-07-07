@@ -15,11 +15,15 @@ owner-gated waves.
 ## Constraints
 
 - **Serial-first (load-bearing).** The first orchestrator runs children ONE AT A
-  TIME, each in its own worktree, via the proven run-loop procedure. Parallel
-  fan-out is a LATER phase and requires per-child worktrees + a parent
-  merge-and-re-verify + single-writer manifest. Reason (grounded): the critic's
-  verify is the FULL suite, so naive parallel children on one tree/dev-DB produce
-  non-attributable verdicts and break the gate loops rests on.
+  TIME on a SINGLE program branch (children commit sequentially; a checkpoint tag
+  before each wave gives rollback) -- exactly how run-loop works today. NO
+  per-child worktrees, NO naming convention needed in the serial cut. Worktrees
+  exist only to isolate CONCURRENT children, which is a PARALLEL problem: the
+  critic's verify is the FULL suite, so parallel children sharing one tree/dev-DB
+  produce non-attributable verdicts. So parallel fan-out is a LATER phase and is
+  the ONLY place that needs per-child worktrees + a branch naming convention
+  (`<program>-w<wave>-<item-id>`) + a parent merge-and-re-verify. Single-writer
+  manifest holds throughout.
 - **Honest scope: the orchestrator is mostly NEW infra.** Reused as-is: the
   contract format, the critic skill, the pre_verify convention, the brain glue,
   and `run-loop` AS THE CHILD PROCEDURE. Built new: the audit, wave state,
@@ -94,14 +98,14 @@ model/test_model                         # EXISTING; parent holds a program budg
 Reads conf + plan -> AUDIT -> owner-approves the manifest -> for each wave,
 safest to most irreversible:
 
-1. Run each item's child `run-loop` ONE AT A TIME, in an isolated worktree/branch;
-   per-item gate = `pre_verify` -> `critic`, as today. Under the parent the
-   child's interactive human-pause is SUSPENDED (contract-failure-only); the human
-   gates move to the wave boundary.
-2. After the wave's items: the parent MERGES their branches, runs ONE post-merge
-   full `verify` + the `safety_gate` (rehearsal; on high-risk waves a backup audit
-   + a checkpoint tag/branch first), then **UAT** (owner accepts). Only then
-   advance.
+1. Run each item's child `run-loop` ONE AT A TIME on the single program branch
+   (commit per item); per-item gate = `pre_verify` -> `critic`, as today. Under
+   the parent the child's interactive human-pause is SUSPENDED
+   (contract-failure-only); the human gates move to the wave boundary.
+2. After the wave's items: the parent runs the full `verify` + the `safety_gate`
+   (rehearsal; on high-risk waves a backup audit + a checkpoint tag first), then
+   **UAT** (owner accepts). Only then advance. (No merge step in the serial cut --
+   there is one branch. Merge-and-re-verify appears only in the parallel phase.)
 3. Escalate: a child whose reality disagrees with the contract writes
    `status:blocked` + a report file; the PARENT re-waves it (records the ruling in
    the manifest). `unknown`/`irreversible` items escalate to the owner; a
@@ -157,10 +161,10 @@ plain run-loop (no break to existing contracts).
 the manifest from plan + repo, defaults uninspectable items to `unknown`, and the
 owner-approval gate.
 
-**Phase 4 -- `orchestrate` mode, SERIAL.** One child at a time in an isolated
-worktree; per-item gates; wave = parent-merge + full verify + safety_gate + UAT;
-escalation; wave-state ledger + crash-resume; program budget ledger; in-terminal
-UAT + inventory file.
+**Phase 4 -- `orchestrate` mode, SERIAL.** One child at a time on ONE program
+branch (no per-child worktrees); per-item gates; wave = full verify + safety_gate
++ UAT (checkpoint tag before each wave for rollback); escalation; wave-state
+ledger + crash-resume; program budget ledger; in-terminal UAT + inventory file.
 
 **Phase 5 -- First real program: cyb-www.** Hand-write cyb-www's conf; run the
 blog-system plan's phases as SERIAL gated waves. PREREQ (not built here): the
@@ -169,9 +173,10 @@ blog-system Phase 2, done with PLAIN run-loop, no orchestrator; the orchestrator
 consumes it once green. (So the blog is unblocked independently; this phase then
 drives it under the orchestrator.)
 
-**Phase 6 -- Parallel fan-out (LATER, separately proven).** Per-child worktrees +
-parent merge-and-re-verify + a concurrency cap, proven on a wave-shaped program.
-NOT required for cyb-www.
+**Phase 6 -- Parallel fan-out (LATER, separately proven).** The ONLY phase that
+introduces per-child worktrees + the branch naming convention
+(`<program>-w<wave>-<item-id>`) + parent merge-and-re-verify + a concurrency cap.
+Proven on a wave-shaped program. NOT required for cyb-www.
 
 **Phase 7 -- conf generator.**
 
