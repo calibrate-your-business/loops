@@ -1,7 +1,7 @@
 {
   "target": "<branch>",
   "verify": "<verify command from the profile>",
-  "rubric_context": "<brain context>",
+  "rubric_context": "<principles path>",
   "items": [
     {
       "id": "<id>",

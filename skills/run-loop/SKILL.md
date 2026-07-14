@@ -14,8 +14,18 @@ the generator and critic you invoke. You hold the state (`feature_list.json`,
 ## Setup (from the project profile + the contract)
 
 Read `loops/profiles/<project>.md` (planner, generator, verify command,
-`pre_verify` checks, `rubric_context`, reinvention catalog, brain query, `model`
-+ `test_model`) and the target's `contract.md` + `feature_list.json`.
+`pre_verify` checks, `rubric_context`, `knowledge_context`, reinvention catalog,
+brain query, `model` + `test_model`) and the target's `contract.md` +
+`feature_list.json`. The two context fields go to different roles:
+`knowledge_context` (the brain) is handed to DISCOVER; `rubric_context` (the
+project's principles dir) is handed to the critic. Never cross them -- the
+brain informs what to build; it cannot fail a diff.
+
+**PROFILE-SANITY (every run start, before anything else).** Profiles rot; the
+orchestrator checks, never assumes. Re-validate the profile's facts: the repo
+path exists, the verify command runs, the `rubric_context` path exists, and the
+contract files are present at their declared home. Any stale fact = STOP and
+surface to the human before the item loop.
 
 **CONTRACT-SANITY (one-time, before the item loop).** Scan every assertion in
 `contract.md` and inspect its `check:`. Flag any that is NON-falsifiable -- one
@@ -29,9 +39,9 @@ transcript, and they let a "pass" mean nothing.
 ## The loop body -- per item, until all-green or a hard stop
 
 1. **PICK** the next `todo` item in `feature_list.json`; set `doing`.
-2. **DISCOVER** (memory, not re-derivation): query the brain for the principles
-   AND the existing primitives tied to this item's files
-   (`<brain query> "<area>" --context <rubric_context>`). Hand this to the
+2. **DISCOVER** (memory, not re-derivation): query the brain for the domain
+   knowledge AND the existing primitives tied to this item's files
+   (`<brain query> "<area>" --context <knowledge_context>`). Hand this to the
    generator as required reading -- this is PULL, not "please read the docs."
 3. **GENERATE**: invoke the project's generator skill on this item, with the
    discovered context, the item's assertions, and the requirement to end with a

@@ -53,8 +53,10 @@ order; ask before assuming.
    - objective or hybrid mode: objective when tests are the whole rubric;
      hybrid when part of the work is subjective (copy, UI) and needs a
      weighted taste rubric graded alongside the tests
-   - optional memory: a brain instance, a markdown directory of principles, or
-     nothing (see "Composable" below)
+   - the project's principles dir, if it has one -- the critic's conformance
+     rubric (`rubric_context`)
+   - optional knowledge base: a brain instance for planning, discovery, and
+     write-back (`knowledge_context`; see "Composable" below)
 
 2. **Write `profiles/<their-project>.md`.** Profiles are gitignored on purpose
    -- they are private, per-project bindings; every fork writes its own. Do
@@ -62,14 +64,17 @@ order; ask before assuming.
 
        # profile: <project>
 
-       planner:        <their planning skill, or "spec-first with plain Claude">
-       generator:      <their build skill, or "plain Claude Code, TDD">
-       verify:         <the FULL suite command -- never a subset>
-       rubric_context: <brain context / principles dir, or "none">
-       mode:           objective | hybrid
-       repo:           <absolute path to the target repo>
-       model:          <strong tier, for real runs>
-       test_model:     <cheap tier, ONLY for testing the harness mechanics>
+       planner:           <their planning skill, or "spec-first with plain Claude">
+       generator:         <their build skill, or "plain Claude Code, TDD">
+       verify:            <the FULL suite command -- never a subset>
+       rubric_context:    <path to the project's principles dir -- the critic's
+                          conformance rubric; or "none">
+       knowledge_context: <brain instance / knowledge base for planner+generator
+                          DISCOVER and write-back; or "none">
+       mode:              objective | hybrid
+       repo:              <absolute path to the target repo>
+       model:             <strong tier, for real runs>
+       test_model:        <cheap tier, ONLY for testing the harness mechanics>
 
        pre_verify:
          - <formatter check>
@@ -131,22 +136,24 @@ order; ask before assuming.
 
 ## Composable, not coupled
 
-The memory/rulebook layer is OPTIONAL. The loop runs fine with nothing behind
-`rubric_context` -- the critic then grades correctness (your tests) and the
-contract's own assertions. Add memory when you want more:
+Both context layers are OPTIONAL -- and they are two different things:
 
-- **A brain instance** ([calibrate-your-business/brain](https://github.com/calibrate-your-business/brain))
-  -- the critic grades diffs against your principle pages and a "do not
-  reinvent" catalog, and run outcomes write back, so run N+1 knows what run N
-  learned.
-- **Any markdown directory** -- point `rubric_context` at a folder of
-  principles; the critic reads what governs the touched files.
-- **Nothing** -- objective mode, tests are the rubric.
+- **`knowledge_context` is the brain** ([calibrate-your-business/brain](https://github.com/calibrate-your-business/brain))
+  -- business/domain knowledge: the why and the what. It informs planning and
+  the generator's DISCOVER step, and run outcomes write back so run N+1 knows
+  what run N learned. It is never the code-standards rubric and cannot fail a
+  diff.
+- **`rubric_context` is principles** -- per-project code standards, versioned
+  with the code they govern: the how. Point it at the project's principles
+  dir; the critic grades diffs against those files alone.
+- **Neither** -- a project with no principles dir runs objective mode (tests
+  are the whole rubric) or hybrid with a taste rubric; the loop runs fine.
 
 Works well with:
 
-- [brain](https://github.com/calibrate-your-business/brain) -- memory +
-  rulebook engine; makes conformance gradable and runs cumulative.
+- [brain](https://github.com/calibrate-your-business/brain) -- the knowledge
+  engine behind `knowledge_context`; informs planning and makes runs
+  cumulative.
 - [automations](https://github.com/calibrate-your-business/automations) --
   schedule recurring loop runs instead of launching them by hand.
 - [x-bookmarks](https://github.com/calibrate-your-business/x-bookmarks) -- an

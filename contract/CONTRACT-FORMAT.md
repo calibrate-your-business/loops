@@ -20,7 +20,7 @@ constrained anything. (run-loop's CONTRACT-SANITY step flags these before buildi
     ### correctness
     - [C1] <claim> -- check: <test name / command / grep>
 
-    ### conformance (graded against the BRAIN, not tests)
+    ### conformance (graded against the project's PRINCIPLES, not tests)
     - [K1] conforms to <[[principle]]> -- check: <the prohibition it must not violate>
     - [K2] reuses <existing primitive@loc> instead of reinventing -- check: <symbol>
 
@@ -32,7 +32,7 @@ constrained anything. (run-loop's CONTRACT-SANITY step flags these before buildi
     {
       "target": "<branch>",
       "verify": "<command>",
-      "rubric_context": "<brain context>",
+      "rubric_context": "<principles path>",
       "items": [
         {"id":"...","title":"...","status":"todo|doing|done|blocked",
          "assertions":["C1","K1","P1"], "iters":0}

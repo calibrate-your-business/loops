@@ -20,7 +20,7 @@ there is no new verifier to build. (The family calendar app is a later target.)
 ## Architecture context (5 repos)
 
 `loops` is a SYSTEM, peer to `brain`. It USES the brain (`$BRAIN_DB` via
-`brain/db/query.py`) as memory + rulebook, and OPERATES ON a target project
+`brain/db/query.py`) as memory + planning rulebook, and OPERATES ON a target project
 (cyb's products). It does NOT replace the project's planner/generator, hold data
 (`brain-db`), or hold business code (`cyb`).
 
@@ -35,7 +35,7 @@ there is no new verifier to build. (The family calendar app is a later target.)
 - **CRITIC** (loops provides -- THE MISSING ROLE) -- a subagent in its OWN
   context, told from message 1 "the work is broken, prove it." Reads the diff,
   runs the project's verification command, grades against the contract + the
-  brain's invariant pages. Never the maker.
+  principle files at the profile's `rubric_context` path. Never the maker.
 
 ## Per-project: thin PROFILES, not bespoke trinities
 
@@ -49,8 +49,8 @@ parts per project via a thin **loop profile** (config, not code):
   lacks one, build it as a NORMAL project skill; the loop just points at it.
 - **CRITIC = ONE generic skill loops provides, parameterized per project.** Its
   machinery is identical everywhere (own context, prove-it, grade vs contract,
-  brain as rubric); only three INPUTS change: the verify command, the
-  rubric/context, the contract. Config, not a new skill.
+  principles as rubric); only three INPUTS change: the verify command, the
+  `rubric_context` principles path, the contract. Config, not a new skill.
 - **The only genuinely new per-domain work is the VERIFIER BACKBONE the critic
   plugs into, in ~2 flavors, reused across projects:**
   - OBJECTIVE (code/functionality): a test/build command -- sw-go `bats`, iOS
@@ -63,11 +63,12 @@ domain, reused) + N tiny profiles (config) + reuse of each project's existing
 planner/generator. A `profile` is roughly:
 
     project: sw-go
-    planner: writing-plans            # the project's own skill
-    generator: executing-plans        # the project's own skill
-    verify: ./tools/run-tests         # the objective backbone
-    rubric_context: schedule-wrangler # which brain context the critic grades against
-    mode: objective                   # objective (tests) | subjective (taste rubric)
+    planner: writing-plans               # the project's own skill
+    generator: executing-plans           # the project's own skill
+    verify: ./tools/run-tests            # the objective backbone
+    rubric_context: docs/principles/     # the principles dir the critic grades against
+    knowledge_context: schedule-wrangler # the brain context for DISCOVER + write-back
+    mode: objective                      # objective (tests) | subjective (taste rubric)
 
 ## Conformance, not just correctness (the critic's highest-value job)
 
@@ -75,17 +76,18 @@ the owner's top frustration with the current workflow: agents fail to read the
 principles, fail to use existing skills, and reinvent primitives that already
 exist. These are INVISIBLE TO TESTS -- code passes every test while violating a
 principle or duplicating a helper. So the critic's rubric is NOT the test suite;
-it is the BRAIN. Two generic critic capabilities (parameterized by the project's
-brain context):
+it is the project's PRINCIPLES -- the dir at the profile's `rubric_context` path,
+versioned with the code it governs. Two generic critic capabilities
+(parameterized by the profile):
 
-- **Conformance grading.** The critic pulls (via the brain link graph) the
-  principle pages tied to the files the diff touches, and checks the diff against
-  each principle's PROHIBITIONS (sw-go: [[sw-platform-domain-split]],
-  [[sw-typed-metadata]], [[sw-binding-rules]], ...). Violations FAIL even when
+- **Conformance grading.** The critic reads the principle files at
+  `rubric_context` that govern the files the diff touches, and checks the diff
+  against each principle's PROHIBITIONS (sw-go: platform-domain-split,
+  typed-metadata, binding-rules, ...). Violations FAIL even when
   tests pass.
 - **Adversarial reinvention search.** For every NEW symbol the diff introduces,
-  the critic greps the codebase + the brain's "DO NOT REINVENT" catalog
-  ([[sw-dev-conventions]]) for an existing equivalent; finding one FAILS the item
+  the critic greps the codebase + the profile's "DO NOT REINVENT" catalog
+  for an existing equivalent; finding one FAILS the item
   with the existing primitive's location. The critic does the reuse-search the
   generator skipped.
 
@@ -95,17 +97,19 @@ only line of defense):
 - **Grounding is a CONTRACT item** (gradable): "conforms to the applicable
   binding rules (cite them)"; "introduces no duplicate primitive (list what you
   checked)." Skipping the principles = a red contract item, not a vibe.
-- **PULL, not push.** The generator's DISCOVER step queries the brain for the
-  principles tied to THESE files and seeds the work with them -- targeted
-  retrieval beats "please read all five docs" (which agents skip).
+- **PULL, not push.** The generator's DISCOVER step queries the brain
+  (`knowledge_context`) for the domain knowledge and existing patterns tied to
+  THESE files and seeds the work with them -- targeted retrieval beats "please
+  read all five docs" (which agents skip).
 - **Conformance manifest.** The generator declares principles-consulted /
   primitives-reused / new-primitives-justified; the critic VERIFIES each claim.
   Turns "did you read the docs" into an explicit, gradable artifact.
 
 Net: today grounding is push + optional + unverified; the loop makes it pull +
-required + adversarially verified. The brain is what makes this possible (the
-principles + primitive catalog are queryable, file-linked, and serve as the
-critic's rubric).
+required + adversarially verified. The two-field split is what makes this
+possible: the principles at `rubric_context` (per-project, versioned with the
+code) serve as the critic's rubric; the brain (`knowledge_context`) carries the
+domain knowledge that seeds discovery and cannot fail a diff.
 
 ## The contract (LOOPS.md III/IV -- on disk, the gradable target)
 
@@ -155,12 +159,14 @@ insert a human only when the CONTRACT itself is wrong, never when the build is.
 
 ## The brain in the loop (memory as the outer loop)
 
-- DISCOVER: planner/generator/critic query the brain
-  (`BRAIN_DB=~/Claude/brain-db python3 ~/Claude/brain/db/query.py search "..."
-  --context <project>`) for codebase patterns + the contract rubric, instead of
-  re-deriving the project every run.
-- RULEBOOK: the critic grades against the brain's invariant pages (sw-go:
-  [[SW Binding Rules]], [[SW Cross-Calendar Invariant]], [[deviations-proof-of-stack]]).
+- DISCOVER: planner/generator query the brain (the profile's `knowledge_context`:
+  `BRAIN_DB=~/Claude/brain-db python3 ~/Claude/brain/db/query.py search "..."
+  --context <knowledge_context>`) for business/domain knowledge + codebase
+  patterns, instead of re-deriving the project every run.
+- RULEBOOK (planning): the brain informs WHAT to build and why; it is never the
+  critic's conformance rubric -- that is the principles dir at the profile's
+  `rubric_context` path, versioned with the code it governs. The brain cannot
+  fail a diff.
 - WRITE-BACK: loop outcomes -> raw -> recompiled wiki, so run N+1 knows what run
   N learned.
 
@@ -182,7 +188,7 @@ stealing from `loopy` (its "receipt" pattern).
 1. `contract/` -- the `contract.md` / `feature_list.json` / `progress.md` format
    + templates + a splitter (spec -> contract).
 2. `skills/critic/` -- the adversarial critic skill (own context, prove-it,
-   grades vs contract + brain).
+   grades vs contract + principles).
 3. `run/` -- the loop orchestrator (the body + hard stops + heartbeat + trace
    logging).
 4. brain wiring -- the DISCOVER / RULEBOOK / WRITE-BACK glue.
