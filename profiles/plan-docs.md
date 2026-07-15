@@ -5,15 +5,19 @@ machine-local per-project profiles (host paths, corporate specifics), this one i
 COMMITTED and shared: a plan run's rubric is the same everywhere, so the profile
 is a house standard, not a private binding.
 
-    deliverable:    plan-doc                  # the output is a plan, not code
-    generator:      writing-plans-on-disk     # the target repo's plan-writing skill
-                                              #   cyb monorepo: writing-plans-on-disk
-                                              #   sw-go:        writing-plans
-    verify:         plan-document-reviewer     # subjective mode: the reviewer rubric IS the gate (no test command)
-    rubric_context: house-plan-standard        # ONE fixed plan rubric, shared by every plan run
-    mode:           subjective                 # a plan has no test suite; the rubric is taste + conformance
-    model:          opus                       # strong tier for real runs
-    test_model:     haiku                       # harness-plumbing checks only
+    deliverable:       plan-doc                 # the output is a plan, not code
+    generator:         writing-plans-on-disk    # the target repo's plan-writing skill
+                                                #   cyb monorepo: writing-plans-on-disk
+                                                #   sw-go:        writing-plans
+    verify:            plan-document-reviewer    # subjective mode: the reviewer rubric IS the gate (no test command)
+    mode:              subjective                # a plan has no test suite; the rubric is taste + conformance
+    rubric_context:    sw-go/.claude/skills/writing-plans/plan-document-reviewer-prompt.md
+                                                # the FIXED house plan rubric that GRADES -- same for every plan run,
+                                                # not a docs/principles dir (a plan is graded by the reviewer, not code principles)
+    knowledge_context: <target project's brain context>
+                                                # bound per run; INFORMS the plan-writing generator's DISCOVER; cannot fail a diff
+    model:             opus                      # strong tier for real runs
+    test_model:        haiku                      # harness-plumbing checks only
 
 ## KEY DISTINCTION -- a plan run is ONE item; the contract is the house standard
 
