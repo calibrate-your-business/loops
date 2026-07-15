@@ -4,4 +4,7 @@ __pycache__/
 
 # Per-project profiles are private bindings (corporate specifics); the engine
 # is public. Keep profiles local, or publish your own in your fork.
-profiles/
+profiles/*
+
+# EXCEPTION: plan-docs is a committed house standard (deliverable-type, not a private per-project binding).
+!profiles/plan-docs.md

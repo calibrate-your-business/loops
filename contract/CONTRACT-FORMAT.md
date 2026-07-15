@@ -4,6 +4,10 @@ The contract is what the CRITIC grades against. It lives in the TARGET project
 (on its branch), not in loops. Three files + a per-item manifest; crash-resume
 from these three files alone.
 
+Scope: this trio is for multi-item BUILD runs. A PLAN-document run is ONE item --
+no `feature_list.json`; `progress.md` is the iteration trace only; the rubric is
+the fixed house plan standard (see `profiles/plan-docs.md`).
+
 ## contract.md -- the testable assertions
 
 Grouped by feature item. Each assertion has an ID, the claim, and HOW to check it

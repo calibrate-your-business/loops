@@ -123,6 +123,14 @@ Split out of the spec; three files per loop run, in the target project:
 - `progress.md` -- append-only run log (what was tried, what the critic said).
   Crash-resume from these three files.
 
+**When the deliverable is a PLAN document, not software.** loops can also produce
+plan docs. Then the CONTRACT is not a bespoke per-run checklist -- it is the FIXED
+HOUSE PLAN STANDARD (the plan lint plus the plan-document-reviewer rubric), the
+SAME rubric for every plan run, bound via `profiles/plan-docs.md`. The trio above
+is for multi-item BUILD runs; a plan run is ONE item (the plan), so there is NO
+`feature_list.json`, and `progress.md` stays solely the iteration trace. The human
+gate is the scratch -> committed `plans/` promotion.
+
 ## The loop body (LOOPS.md I/V)
 
 generate next unchecked item -> PRE-VERIFY (cheap deterministic floor) -> critic
